@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Me Vision Builder | ASU</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* API Key Modal */
+        .api-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .api-modal.active {
+            display: flex;
+        }
+
+        .api-modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+        }
+
+        .api-modal h2 {
+            color: var(--asu-maroon);
+            margin-bottom: 20px;
+        }
+
+        .api-modal p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .api-modal input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 20px 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .api-modal button {
+            background: var(--asu-maroon);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-right: 10px;
+        }
+
+        .api-modal button:hover {
+            background: #6B1532;
+        }
+
+        .api-modal .secondary-btn {
+            background: var(--asu-gray);
+        }
+
+        .api-status {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .api-status.active {
+            display: block;
+        }
+
+        .api-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .api-error.active {
+            display: block;
+        }
+
+        .settings-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--asu-gold);
+            color: var(--asu-black);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .settings-btn:hover {
+            background: #E6B022;
+        }
+
+        .privacy-notice {
+            background: #fff3cd;
+            border: 1px solid #ffc627;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .privacy-notice strong {
+            color: var(--asu-maroon);
+        }
+    </style>
+</head>
+<body>
+    <!-- Settings Button -->
+    <button class="settings-btn" id="settingsBtn">⚙️ OpenAI Settings</button>
+
+    <!-- API Key Modal -->
+    <div class="api-modal" id="apiModal">
+        <div class="api-modal-content">
+            <h2>OpenAI API Configuration</h2>
+            <p>To use the Future Me Vision Builder, you need an OpenAI API key. This key will be stored securely in your browser and only used to generate your personalized roadmap.</p>
+
+            <h3>How to get your API key:</h3>
+            <ol>
+                <li>Go to <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a></li>
+                <li>Sign up or log in</li>
+                <li>Click "Create new secret key"</li>
+                <li>Copy the key and paste it below</li>
+                <li>Add $5-10 in credits at <a href="https://platform.openai.com/account/billing" target="_blank">billing</a> (each roadmap costs ~$0.01-0.05)</li>
+            </ol>
+
+            <div class="privacy-notice">
+                <strong>🔒 Privacy & Security:</strong> Your API key is stored locally in your browser and is never sent anywhere except directly to OpenAI's API. It is not shared with this website or any third party.
+            </div>
+
+            <label for="apiKeyInput"><strong>Enter your OpenAI API Key:</strong></label>
+            <input type="text" id="apiKeyInput" placeholder="sk-..." autocomplete="off">
+
+            <div class="api-error" id="apiError"></div>
+
+            <button onclick="saveApiKey()">Save & Continue</button>
+            <button class="secondary-btn" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>Future Me Vision Builder</h1>
+                <p class="subtitle">Arizona State University</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="api-status" id="apiStatus">
+            ✓ OpenAI API key configured
+        </div>
+
+        <div class="intro-section">
+            <h2>Envision Your Future Self - 40+ Years from Now</h2>
+            <p>Take a moment to imagine yourself at retirement age (60-70 years old). What does your life look like? What have you accomplished? What legacy are you leaving behind?</p>
+            <p><strong>Instructions:</strong> Answer what you can. If you're unsure, write "not sure yet" or give a few possibilities. Our AI coach will help you create a personalized roadmap with annual milestones to reach your vision.</p>
+        </div>
+
+        <form id="visionForm">
+            <!-- Part 1: Who I Am -->
+            <section class="form-section">
+                <h3>Part 1: Who I Am at This Stage of Life</h3>
+
+                <div class="form-group">
+                    <label for="current-age">My current age:</label>
+                    <input type="number" id="current-age" name="currentAge" min="18" max="30" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="lifes-work">Looking back on my career/life's work, I spent most of my time:</label>
+                    <textarea id="lifes-work" name="lifesWork" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="biggest-impact">Made my biggest impact through:</label>
+                    <textarea id="biggest-impact" name="biggestImpact" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="known-for">Was known for:</label>
+                    <input type="text" id="known-for" name="knownFor">
+                </div>
+
+                <div class="form-group">
+                    <label for="most-meaningful">Found most meaningful:</label>
+                    <input type="text" id="most-meaningful" name="mostMeaningful">
+                </div>
+
+                <div class="form-group">
+                    <label for="legacy">The legacy I'm leaving in my field/community:</label>
+                    <textarea id="legacy" name="legacy" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>On a typical day, I:</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="typicalDay" value="Still working part-time"> Still working part-time doing: <input type="text" name="partTimeDetails" class="inline-input"></label>
+                        <label><input type="checkbox" name="typicalDay" value="Fully retired"> Fully retired and focusing on: <input type="text" name="retiredDetails" class="inline-input"></label>
+                        <label><input type="checkbox" name="typicalDay" value="Volunteering"> Volunteering/mentoring in: <input type="text" name="volunteerDetails" class="inline-input"></label>
+                        <label><input type="checkbox" name="typicalDay" value="Pursuing hobbies"> Pursuing hobbies/passions like: <input type="text" name="hobbiesDetails" class="inline-input"></label>
+                        <label><input type="checkbox" name="typicalDay" value="Traveling"> Traveling to: <input type="text" name="travelDetails" class="inline-input"></label>
+                        <label><input type="checkbox" name="typicalDay" value="Spending time"> Spending time with: <input type="text" name="timeWithDetails" class="inline-input"></label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Where I'm living:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="whereAbouts" value="Same region"> Same region I grew up in</label>
+                        <label><input type="radio" name="whereAbouts" value="Career location"> Where I settled for my career</label>
+                        <label><input type="radio" name="whereAbouts" value="Dream location"> Somewhere I always dreamed of</label>
+                        <label><input type="radio" name="whereAbouts" value="Near nature"> Near nature/outdoors</label>
+                        <label><input type="radio" name="whereAbouts" value="Near family"> Near family</label>
+                        <label><input type="radio" name="whereAbouts" value="Unexpected"> Somewhere unexpected: <input type="text" name="unexpectedLocation" class="inline-input"></label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Three words that describe the life I've built:</label>
+                    <input type="text" name="word1" placeholder="Word 1" class="small-input">
+                    <input type="text" name="word2" placeholder="Word 2" class="small-input">
+                    <input type="text" name="word3" placeholder="Word 3" class="small-input">
+                </div>
+            </section>
+
+            <!-- Abbreviated form for brevity - include all sections from previous index.html -->
+            <!-- Part 2, 3, 4, 5, 6 would go here - keeping short for example -->
+
+            <div class="submit-section">
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    Generate My Roadmap
+                </button>
+                <p class="processing-note" id="processingNote" style="display: none;">
+                    Processing your vision... This may take 30-60 seconds.
+                </p>
+            </div>
+        </form>
+
+        <!-- Results Section -->
+        <div id="resultsSection" style="display: none;">
+            <div class="results-header">
+                <h2>Your Personalized 40+ Year Roadmap</h2>
+                <button class="download-btn" id="downloadBtn">Download as PDF</button>
+            </div>
+            <div id="roadmapContent" class="roadmap-content"></div>
+            <button class="start-over-btn" id="startOverBtn">Create Another Vision</button>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Arizona State University. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Check for API key on load
+        window.addEventListener('DOMContentLoaded', function() {
+            const apiKey = localStorage.getItem('openai_api_key');
+            if (!apiKey) {
+                document.getElementById('apiModal').classList.add('active');
+            } else {
+                document.getElementById('apiStatus').classList.add('active');
+            }
+        });
+
+        // Settings button
+        document.getElementById('settingsBtn').addEventListener('click', function() {
+            const currentKey = localStorage.getItem('openai_api_key');
+            if (currentKey) {
+                document.getElementById('apiKeyInput').value = currentKey;
+            }
+            document.getElementById('apiModal').classList.add('active');
+        });
+
+        // Save API key
+        function saveApiKey() {
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+            const errorDiv = document.getElementById('apiError');
+
+            if (!apiKey) {
+                errorDiv.textContent = 'Please enter an API key';
+                errorDiv.classList.add('active');
+                return;
+            }
+
+            if (!apiKey.startsWith('sk-')) {
+                errorDiv.textContent = 'Invalid API key format. OpenAI keys start with "sk-"';
+                errorDiv.classList.add('active');
+                return;
+            }
+
+            localStorage.setItem('openai_api_key', apiKey);
+            document.getElementById('apiStatus').classList.add('active');
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('apiModal').classList.remove('active');
+            document.getElementById('apiError').classList.remove('active');
+        }
+
+        // Hidden AI coaching instructions
+        const COACH_INSTRUCTIONS = `Create a personalized roadmap with **annual milestones** from the student's current age to their retirement vision (40-50 years).
+
+## Requirements:
+
+**1. WORK WITH UNCERTAINTY**
+- Suggest 2-3 career possibilities if they're unsure
+- Build in flexibility and pivot points
+- Acknowledge plans evolve
+
+**2. INTEGRATE ENVIRONMENTAL VALUES**
+- Show how conservation interests fit ANY career
+- Include environmental impact at each life stage
+- Connect personal choices to systemic change
+
+**3. PROVIDE ANNUAL MILESTONES**
+Create year-by-year goals covering:
+- Ages 22-30: Foundation building (education, early career, habits)
+- Ages 30-40: Establishment (career growth, financial stability, impact)
+- Ages 40-50: Peak contribution (leadership, mentoring, legacy building)
+- Ages 50-60: Transition (preparing for next phase, shifting focus)
+- Ages 60-70: Fulfillment (retirement, wisdom sharing, enjoying fruits of labor)
+
+For each year, note:
+- 1-2 key goals or focus areas
+- Major decisions/milestones
+- Environmental actions at that stage
+
+**4. BE REALISTIC**
+- Show the actual work required
+- Note where luck/timing matters
+- Include setbacks and recovery
+- Acknowledge life's unpredictability
+
+**5. END WITH IMMEDIATE ACTIONS**
+- 3 things to do this month
+- 3 things to do this year
+- Why these matter for the 40-year vision
+
+**6. OFFER TO GO DEEPER**
+After presenting the annual roadmap, offer: "Would you like me to break down any specific time period in more detail? I can dive deeper into:
+- Your first 5 years (ages __-__)
+- Your 10-year plan (ages __-__)
+- Mid-career strategy (ages __-__)
+- Preparing for retirement (ages __-__)
+- Or any other timeframe you want to explore"
+
+---
+
+**TONE:** Encouraging but honest. Help them see their retirement-age self as the culmination of decades of choices. Frame it as both inspiring (you have 40+ years to build this!) and urgent (start now, compound effects matter).
+
+**FORMAT:** Use markdown formatting with headings, lists, and bold text for emphasis. Make it easy to read and navigate.`;
+
+        // Form submission
+        document.getElementById('visionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const apiKey = localStorage.getItem('openai_api_key');
+            if (!apiKey) {
+                alert('Please configure your OpenAI API key first');
+                document.getElementById('apiModal').classList.add('active');
+                return;
+            }
+
+            // Disable submit button
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            document.getElementById('processingNote').style.display = 'block';
+
+            // Collect form data
+            const formData = new FormData(this);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+            // Format vision for prompt
+            let visionText = `# Student's Future Me Vision\n\n**Current Age:** ${data.currentAge}\n\n`;
+            visionText += `**Life's Work:** ${data.lifesWork}\n`;
+            visionText += `**Biggest Impact:** ${data.biggestImpact}\n`;
+            visionText += `**Known For:** ${data.knownFor}\n`;
+            visionText += `**Legacy:** ${data.legacy}\n`;
+            // Add more fields as needed...
+
+            try {
+                // Call OpenAI API directly from browser
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-4o-mini',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: COACH_INSTRUCTIONS
+                            },
+                            {
+                                role: 'user',
+                                content: visionText
+                            }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 4000
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const roadmap = result.choices[0].message.content;
+
+                // Convert markdown to HTML (simple version)
+                const roadmapHtml = convertMarkdownToHtml(roadmap);
+
+                // Display results
+                document.getElementById('roadmapContent').innerHTML = roadmapHtml;
+                document.getElementById('resultsSection').style.display = 'block';
+                document.getElementById('visionForm').style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error generating roadmap. Please check your API key and try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Generate My Roadmap';
+                document.getElementById('processingNote').style.display = 'none';
+            }
+        });
+
+        // Simple markdown to HTML converter
+        function convertMarkdownToHtml(text) {
+            text = text.replace(/### (.*?)$/gm, '<h4>$1</h4>');
+            text = text.replace(/## (.*?)$/gm, '<h3>$1</h3>');
+            text = text.replace(/# (.*?)$/gm, '<h3>$1</h3>');
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            text = text.replace(/^\- (.*?)$/gm, '<li>$1</li>');
+            text = text.replace(/\n\n/g, '</p><p>');
+            text = '<p>' + text + '</p>';
+            return text;
+        }
+
+        // Download button
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            window.print();
+        });
+
+        // Start over button
+        document.getElementById('startOverBtn').addEventListener('click', function() {
+            document.getElementById('visionForm').reset();
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('visionForm').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
